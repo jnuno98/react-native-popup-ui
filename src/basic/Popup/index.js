@@ -31,7 +31,22 @@ class Popup extends Component {
 			button: config.button !== undefined ? config.button : true,
 			buttonText: config.buttonText || 'Ok',
 			callback: config.callback !== undefined ? config.callback : this.defaultCallback(),
-			background: config.background || 'rgba(0, 0, 0, 0.5)',
+
+			snd_button: config.snd_button !== undefined ? config.snd_button : true,
+			snd_buttonText: config.snd_buttonText || 'Ok',
+			snd_callback: config.callback !== undefined ? config.snd_callback : this.defaultCallback(),
+
+			dark: config.dark,
+
+			action: config.action !== undefined ? config.action : null,
+
+			latitude: config.latitude,
+			longitude: config.longitude,
+			collection: config.collection,
+			
+
+
+			background: 'rgba(0, 0, 0, 0.5)',
 			timing: config.timing,
 			autoClose: config.autoClose !== undefined ? config.autoClose : false
 		})
@@ -101,12 +116,17 @@ class Popup extends Component {
 	}
 
 	render() {
-		const { title, type, textBody, button, buttonText, callback, background } = this.state
+		const { dark,title, type, textBody, button, buttonText, callback,snd_button, snd_buttonText, snd_callback, background , action, latitude, longitude, collection, button_color, snd_button_color} = this.state
 		let el = null;
 		if (this.state.button) {
-			el = <TouchableOpacity style={[styles.Button, styles[type]]} onPress={callback}>
+			el = <>
+			<TouchableOpacity style={[styles.Button, styles[type]]} onPress={() => action()}>
 				<Text style={styles.TextButton}>{buttonText}</Text>
 			</TouchableOpacity>
+			<TouchableOpacity style={[styles.Button, styles[type]]} onPress={callback}>
+				<Text style={styles.TextButton}>{snd_buttonText}</Text>
+			</TouchableOpacity>
+			</>
 		}
 		else {
 			el = <Text></Text>
@@ -125,14 +145,14 @@ class Popup extends Component {
 					onLayout={event => {
 						this.setState({ popupHeight: event.nativeEvent.layout.height })
 					}}
-					style={[styles.Message, {
+					style={[dark ? styles.Message_dark : styles.Message, {
 						transform: [
 							{ translateY: this.state.positionPopup }
 						]
 					}]}
 
 				>
-					<View style={styles.Header} />
+					<View style={{...styles.Header, backgroundColor: dark ? "rgb(23,32,42)" : '#b7e9f7' }} />
 					{
 						this.state.icon ? (this.state.icon) :
 							<Image
@@ -142,8 +162,26 @@ class Popup extends Component {
 							/>
 					}
 					<View style={styles.Content}>
-						<Text style={styles.Title}>{title}</Text>
-						<Text style={styles.Desc}>{textBody}</Text>
+						<Text style={{...styles.Title, color: dark ? 'white' : 'black'}}>{title}</Text>
+
+						<View style={{flexDirection: "column"}}>
+
+							<View style={{flexDirection: "row"}}>
+								<Text style={{...styles.Desc}}>latitude:</Text>
+								<Text style={{...styles.Desc,fontWeight:"bold", color:"#666"}}>      {latitude}</Text>
+							</View>
+
+							<View style={{flexDirection: "row"}}>
+								<Text style={{...styles.Desc}}>longitude:</Text>
+								<Text style={{...styles.Desc,fontWeight:"bold", color:"#666"}}>   {longitude}</Text>
+							</View>
+
+							<View style={{flexDirection: "row"}}>
+								<Text style={{...styles.Desc}}>collection:</Text>
+								<Text style={{...styles.Desc,fontWeight:"bold",marginBottom:20, color:"#666"}}>   {collection}</Text>
+							</View>
+						</View>
+						
 						{el}
 					</View>
 				</Animated.View>
@@ -158,16 +196,26 @@ const styles = StyleSheet.create({
 		zIndex: 99999,
 		width: WIDTH,
 		height: HEIGHT,
-		backgroundColor: 'rgba(0, 0, 0, 0.5)',
+		backgroundColor: '#fff',
 		alignItems: 'center',
-		top: 0,
+		top: -100,
 		left: 0
 	},
 	Message: {
-		maxWidth: 300,
-		width: 230,
-		minHeight: 300,
-		backgroundColor: '#fff',
+		maxWidth: 350,
+		width: 300,
+		minHeight: 400,
+		backgroundColor: '#b7e9f7',
+		borderRadius: 30,
+		alignItems: 'center',
+		overflow: 'hidden',
+		position: 'absolute',
+	},
+	Message_dark: {
+		maxWidth: 350,
+		width: 300,
+		minHeight: 400,
+		backgroundColor: 'rgb(23,32,42)',
 		borderRadius: 30,
 		alignItems: 'center',
 		overflow: 'hidden',
@@ -178,9 +226,9 @@ const styles = StyleSheet.create({
 		alignItems: 'center'
 	},
 	Header: {
-		height: 230,
-		width: 230,
-		backgroundColor: '#FBFBFB',
+		height: 300,
+		width: 250,
+		backgroundColor: '#b7e9f7',
 		borderRadius: 100,
 		marginTop: -120
 	},
@@ -188,17 +236,20 @@ const styles = StyleSheet.create({
 		width: 150,
 		height: 80,
 		position: 'absolute',
-		top: 20
+		top: 10
 	},
 	Title: {
 		fontWeight: 'bold',
-		fontSize: 18,
-		color: '#333'
+		fontSize: 26,
+		color: '#fff',
+		marginBottom:20
 	},
 	Desc: {
-		textAlign: 'center',
+		//textAlign: 'center',
+		
 		color: '#666',
-		marginTop: 10
+		marginTop: 10,
+		//marginBottom:10
 	},
 	Button: {
 		borderRadius: 50,
@@ -206,22 +257,22 @@ const styles = StyleSheet.create({
 		width: 130,
 		justifyContent: 'center',
 		alignItems: 'center',
-		marginTop: 30
+		marginTop: 10
 	},
 	TextButton: {
 		color: '#fff',
 		fontWeight: 'bold'
 	},
 	Success: {
-		backgroundColor: '#AAF577',
-		shadowColor: "#AAF577",
+		backgroundColor: 'rgb(27,164,220)',
+		shadowColor: "#b7e9f7",
 		shadowOffset: {
 			width: 0,
 			height: 5,
 		},
-		shadowOpacity: 0.36,
-		shadowRadius: 6.68,
-		elevation: 11
+		//shadowOpacity: 0.36,
+		//shadowRadius: 2,
+		elevation: 2
 	},
 	Danger: {
 		backgroundColor: '#F29091',
