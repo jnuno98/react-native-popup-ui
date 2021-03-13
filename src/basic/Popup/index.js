@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
 		height: HEIGHT,
 		backgroundColor: '#fff',
 		alignItems: 'center',
-		top: -100,
+		top: -60,
 		left: 0
 	},
 	Message: {
